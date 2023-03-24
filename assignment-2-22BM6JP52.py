@@ -26,6 +26,17 @@ class DisjointSet:
         else:
             self.parent[py] = px
             self.rank[px] += 1
+
+def format_print(uf):
+     set_list = {}
+     count = 1
+     for node, set_id in uf.items():
+        if set_id not in set_list:
+            count +=1
+            set_list[set_id] = count
+        print("{} {}".format(node, set_list[set_id]))
+            
+
 		
 def gen_graph(edges):
 	graph = {}
@@ -50,7 +61,7 @@ def karger_min_cut(graph):
         for v in graph[u]:
             if uf.find(u) != uf.find(v):
                 cut_size += 1
-    return cut_size // 2  
+    return cut_size // 2, uf
 
 if __name__ == "__main__":
 
@@ -60,6 +71,7 @@ if __name__ == "__main__":
 	start = time.time()
 	edges = np.loadtxt(sys.argv[1], dtype=int, delimiter = ' ')
 	graph = gen_graph(edges)
-	print("Graph generated:{}".format(time.time() - start))
-	print(karger_min_cut(graph.graph))
-	print(time.time() - start)
+    min_cut, nf = karger_min_cut(graph)
+    print(min_cut)
+	format_print(nf.parent)
+	print("Total time: {}".format(time.time() - start))
