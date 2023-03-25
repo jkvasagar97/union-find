@@ -4,11 +4,14 @@ import time
 import random
 
 class DisjointSet:
-    def __init__(self, n):
-        self.parent = list(range(n))
-        self.rank = [0] * n
-        self.sets_count = n
-    
+    def __init__(self, graph):
+        self.parent = {}
+        self.rank = {}
+        self.sets_count = len(graph)
+        for node in graph.keys():
+            self.parent[node] = node
+            self.rank[node] = 0
+
     def find(self, x):
         if self.parent[x] != x:
             self.parent[x] = self.find(self.parent[x])
@@ -29,15 +32,13 @@ class DisjointSet:
 
 def format_print(uf):
      set_list = {}
-     count = 1
-     for node, set_id in uf.items():
-        if set_id not in set_list:
+     count = 0
+     for node in range(len(uf)):
+        if uf[node] not in set_list.keys():
             count +=1
-            set_list[set_id] = count
-        print("{} {}".format(node, set_list[set_id]))
+            set_list[uf[node]] = count
+        print("{} {}".format(node, set_list[uf[node]]))
             
-
-		
 def gen_graph(edges):
 	graph = {}
 	for edge in edges:
@@ -51,14 +52,19 @@ def gen_graph(edges):
     
 def karger_min_cut(graph):
     n = len(graph)
-    uf = DisjointSet(n)
+    uf = DisjointSet(graph)
+    nodes = list(graph.keys())
     while uf.sets_count > 2:
-        u = random.randint(0, n-1)
-        v = random.choice(graph[u])
-        uf.union(u, v)
+        if (uf.sets_count < 10000 == 0 and uf.sets_count % 1000==0) :
+            print("Iteration index :", uf.sets_count)
+        u = random.choice(nodes)
+        if len(graph[u]) > 0: 
+            v = graph[u].pop(random.randrange(len(graph[u])))
+            graph[v].pop(graph[v].index(u))
+            uf.union(u, v)
     cut_size = 0
-    for u in range(n):
-        for v in graph[u]:
+    for u in nodes:
+        for v in nodes:
             if uf.find(u) != uf.find(v):
                 cut_size += 1
     return cut_size // 2, uf
